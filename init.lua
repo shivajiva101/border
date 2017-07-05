@@ -5,15 +5,20 @@ with persistence of the last state across server restarts
 ]]
 
 local mod_data = minetest.get_mod_storage()
-local border = "false"
+local border = "OPEN"
 
 -- initialise
 if mod_data:get_string("status") == "" then
-  mod_data:set_string("status", "true") 
+  mod_data:set_string("status", "CLOSED") 
 end
 
 --set
 border = mod_data:get_string("status")
+
+-- announce status
+minetest.after(5, function()
+	minetest.chat_send_all("[border:info] border is "..border)
+end)
 
 -- toggle new players
 minetest.register_chatcommand("border", {
@@ -21,12 +26,12 @@ minetest.register_chatcommand("border", {
     description = "Toggles if new players are allowed",
     privs = {server = true},
     func = function (name, param)
-      if border == "true" then
-        border = "false"
-        minetest.chat_send_player(name, "Server allowing new players.")
+      if border == "CLOSED" then
+        border = "OPEN"
+        minetest.chat_send_player(name, "[border:info] allowing new players.")
       else
-        border = "true"
-        minetest.chat_send_player(name, "Server refusing new players.")
+        border = "CLOSED"
+        minetest.chat_send_player(name, "[border:info] refusing new players.")
       end
       mod_data:set_string("flag", border) -- save
     end
@@ -39,7 +44,7 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	    return
 	end
     -- stop NEW players from joining
-    if border == "true" and not core.auth_table[name] then
+    if border == "CLOSED" and not core.auth_table[name] then
       return ("\nSorry, no new players being admitted at this time!")
     end
   end
