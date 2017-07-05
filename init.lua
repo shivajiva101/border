@@ -34,6 +34,10 @@ minetest.register_chatcommand("border", {
 
 -- register hook
 minetest.register_on_prejoinplayer(function(name, ip)
+    -- owner exception
+	if minetest.setting_get("name") == name then
+	    return
+	end
     -- stop NEW players from joining
     if border == "true" and not core.auth_table[name] then
       return ("\nSorry, no new players being admitted at this time!")
