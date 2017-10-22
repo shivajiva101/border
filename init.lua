@@ -5,6 +5,7 @@ with persistence of the last state across server restarts
 ]]
 
 local mod_data = minetest.get_mod_storage()
+local sauth_mod = minetest.get_modpath("sauth")
 local border = "OPEN"
 
 -- initialise
@@ -39,13 +40,15 @@ minetest.register_chatcommand("border", {
 
 -- register hook
 minetest.register_on_prejoinplayer(function(name, ip)
-    -- owner exception
+	-- owner exception
 	if minetest.setting_get("name") == name then
-	    return
+			return
 	end
-    -- stop NEW players from joining
-    if border == "CLOSED" and not core.auth_table[name] then
-      return ("\nSorry, no new players being admitted at this time!")
-    end
-  end
+	-- stop NEW players from joining
+	local player = core.auth_table[name]
+	if sauth_mod then player = sauth.get_auth(name, false) end -- no caching
+	if border == "CLOSED" and not player then
+			return ("\nSorry, no new players being admitted at this time!")
+	end
+end
 )
