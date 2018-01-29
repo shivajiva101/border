@@ -3,6 +3,10 @@ Adds a border command to minetest to stop new players joining, an essential comm
 
 Commands:
 
+``` /border```
+
+Toggles the border, default is border open.
+
 ``` /visa <player>```
 
 Opens a 5 minute window on the name supplied to allow a new player to join without dropping the border
