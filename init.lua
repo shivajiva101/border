@@ -6,6 +6,7 @@ with persistence of the last state across server restarts
 
 local mod_data = minetest.get_mod_storage()
 local border = "OPEN"
+local visa = {}
 
 -- initialise
 if mod_data:get_string("status") == "" then
@@ -37,6 +38,23 @@ minetest.register_chatcommand("border", {
     end
   })
 
+minetest.register_chatcommand("visa", {
+	params = "player",
+	description = "Adds a temporary visa allowing a new player to create an account",
+	privs = {server = true},
+	func = function (name, param)
+		if not param then
+			minetest.chat_send_player(name, "Use: /visa <name>")
+		end
+		if not visa[param] then
+			visa[param] = true
+			minetest.after(300, function(name)
+				if visa[name] then visa[name] = nil end
+				end, param)
+		end
+    end
+  })
+
 -- register hook
 minetest.register_on_prejoinplayer(function(name, ip)
 	-- owner exception
@@ -45,8 +63,9 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	end
 	-- stop NEW players from joining
 	local player = minetest.get_auth_handler().get_auth(name)
-	if border == "CLOSED" and not player then
+	if border == "CLOSED" and not player and not visa[name] then
 			return ("\nSorry, no new players being admitted at this time!")
 	end
+	if visa[name] then visa[name] = nil end
 end
 )
