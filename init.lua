@@ -7,6 +7,7 @@ with persistence of the last state across server restarts
 local mod_data = minetest.get_mod_storage()
 local border = "OPEN"
 local visa = {}
+local duration = 300
 
 -- initialise
 if mod_data:get_string("status") == "" then
@@ -34,7 +35,7 @@ minetest.register_chatcommand("border", {
         border = "CLOSED"
         minetest.chat_send_player(name, "[border:info] refusing new players.")
       end
-      mod_data:set_string("flag", border) -- save
+      mod_data:set_string("status", border) -- save
     end
   })
 
@@ -48,7 +49,7 @@ minetest.register_chatcommand("visa", {
 		end
 		if not visa[param] then
 			visa[param] = true
-			minetest.after(300, function(name)
+			minetest.after(duration, function(name)
 				if visa[name] then visa[name] = nil end
 				end, param)
 		end
