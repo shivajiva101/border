@@ -5,17 +5,40 @@ with persistence of the last state across server restarts
 ]]
 
 local mod_data = minetest.get_mod_storage()
-local border = "OPEN"
-local visa = {}
+local border = mod_data:get_string("status")
+local visa = mod_data:get_string("visa")
 local duration = 300
 
 -- initialise
-if mod_data:get_string("status") == "" then
-  mod_data:set_string("status", "CLOSED") 
+if border == "" then
+	mod_data:set_string("status", "CLOSED")
+	border = "CLOSED"
 end
 
---set
-border = mod_data:get_string("status")
+if visa == "" then
+	visa = {}
+else
+	visa = minetest.deserialize(visa)
+	for name,expires in pairs(visa) do
+		local t_remains = expires - os.time()
+		if t_remains > 0 then
+			minetest.after(t_remains,function(name)
+				update_visa_cache, name)
+		else
+			update_visa_cache(name)
+		end
+	end
+end
+
+local function update_visa_cache(name)
+	if visa[name] then
+		visa[name] = nil
+		collectgarbage()
+	else
+		visa[name] = os.time() + duration 
+	end
+	mod_data:set_string("visa", minetest.serialize(visa))
+end
 
 -- announce status
 minetest.after(5, function()
@@ -47,12 +70,8 @@ minetest.register_chatcommand("visa", {
 		if not param then
 			minetest.chat_send_player(name, "Use: /visa <name>")
 		end
-		if not visa[param] then
-			visa[param] = true
-			minetest.after(duration, function(name)
-				if visa[name] then visa[name] = nil end
-				end, param)
-		end
+		update_visa_cache(param)
+		minetest.after(duration, function(name) update_visa_cache, param)
     end
   })
 
@@ -63,10 +82,10 @@ minetest.register_on_prejoinplayer(function(name, ip)
 			return
 	end
 	-- stop NEW players from joining
-	local player = minetest.get_auth_handler().get_auth(name)
-	if border == "CLOSED" and not player and not visa[name] then
+	local exists = minetest.get_auth_handler().get_auth(name)
+	if border == "CLOSED" and not exists and not visa[name] then
 			return ("\nSorry, no new players being admitted at this time!")
 	end
-	if visa[name] then visa[name] = nil end
+	if visa[name] then update_visa_cache(name) end
 end
 )
