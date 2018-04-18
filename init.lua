@@ -72,6 +72,7 @@ minetest.register_chatcommand("visa", {
 		end
 		update_visa_cache(param)
 		minetest.after(duration, function(param) update_visa_cache(param) end, param)
+		minetest.chat_send_player(name, "A visa was issued to "..param)
     end
   })
 
