@@ -10,12 +10,6 @@ local visa = mod_data:get_string("visa")
 local duration = minetest.setting_get("border.visa_duration") or 86400 -- 1 day
 local msg = minetest.setting_get("border.msg") or "\nSorry, no new players being admitted at this time!"
 
-if border == "" then
-	-- initialise
-	mod_data:set_string("status", "CLOSED")
-	border = "CLOSED"
-end
-
 local function update_visa_cache(name)
 	--if name exists in cache remove it
 	if visa[name] then
@@ -26,6 +20,12 @@ local function update_visa_cache(name)
 		visa[name] = os.time() + duration 
 	end
 	mod_data:set_string("visa", minetest.serialize(visa))
+end
+
+if border == "" then
+	-- initialise
+	mod_data:set_string("status", "CLOSED")
+	border = "CLOSED"
 end
 
 if visa == "" then
@@ -65,6 +65,7 @@ minetest.register_chatcommand("border", {
         border = "CLOSED"
         minetest.chat_send_player(name, "[border:info] refusing new players.")
       end
+
       mod_data:set_string("status", border) -- save current state
     end
   })
