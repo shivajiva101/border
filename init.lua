@@ -22,8 +22,8 @@ else
 	for name,expires in pairs(visa) do
 		local t_remains = expires - os.time()
 		if t_remains > 0 then
-			minetest.after(t_remains,function(name)
-				update_visa_cache, name)
+			minetest.after(t_remains, function(name)
+				update_visa_cache(name), name)
 		else
 			update_visa_cache(name)
 		end
@@ -71,7 +71,7 @@ minetest.register_chatcommand("visa", {
 			minetest.chat_send_player(name, "Use: /visa <name>")
 		end
 		update_visa_cache(param)
-		minetest.after(duration, function(name) update_visa_cache, param)
+		minetest.after(duration, function(name) update_visa_cache(param), param)
     end
   })
 
