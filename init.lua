@@ -24,8 +24,8 @@ end
 
 if border == "" then
 	-- initialise
-	mod_data:set_string("status", "CLOSED")
-	border = "CLOSED"
+	mod_data:set_string("status", "OPEN")
+	border = "OPEN"
 end
 
 if visa == "" then
