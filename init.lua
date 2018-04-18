@@ -7,7 +7,8 @@ with persistence of the last state across server restarts
 local mod_data = minetest.get_mod_storage()
 local border = mod_data:get_string("status")
 local visa = mod_data:get_string("visa")
-local duration = 300
+local duration = minetest.setting_get("border.duration") or 300
+local msg = minetest.setting_get("border.msg") or "\nSorry, no new players being admitted at this time!"
 
 -- initialise
 if border == "" then
@@ -85,7 +86,7 @@ minetest.register_on_prejoinplayer(function(name, ip)
 	-- stop NEW players from joining
 	local exists = minetest.get_auth_handler().get_auth(name)
 	if border == "CLOSED" and not exists and not visa[name] then
-			return ("\nSorry, no new players being admitted at this time!")
+			return msg
 	end
 	if visa[name] then update_visa_cache(name) end
 end
