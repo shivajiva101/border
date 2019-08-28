@@ -7,11 +7,11 @@ with persistence of the last state and visa records across server restarts
 local mod_data = minetest.get_mod_storage()
 local border = mod_data:get_string("status")
 local visa = mod_data:get_string("visa")
-local duration = minetest.setting_get("border.visa_duration") or 86400 -- 1 day
-local msg = minetest.setting_get("border.msg") or "\nSorry, no new players being admitted at this time!"
+local duration = minetest.settings:get("border.visa_duration") or 86400 -- 1 day
+local msg = minetest.settings:get("border.msg") or "\nSorry, no new players being admitted at this time!"
 
 local function update_visa_cache(name)
-	--if name exists in cache remove it
+	-- If name exists in cache remove it
 	if visa[name] then
 		visa[name] = nil
 		collectgarbage()
@@ -23,7 +23,7 @@ local function update_visa_cache(name)
 end
 
 if border == "" then
-	-- initialise
+	-- Initialise
 	mod_data:set_string("status", "OPEN")
 	border = "OPEN"
 end
@@ -65,10 +65,9 @@ minetest.register_chatcommand("border", {
         border = "CLOSED"
         minetest.chat_send_player(name, "[border:info] refusing new players.")
       end
-
       mod_data:set_string("status", border) -- save current state
     end
-  })
+})
 
 -- add visa
 minetest.register_chatcommand("visa", {
